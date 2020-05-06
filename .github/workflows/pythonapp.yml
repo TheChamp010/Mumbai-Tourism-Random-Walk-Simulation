@@ -25,5 +25,5 @@ jobs:
         python -m pip install --upgrade pip
         pip install wheel pandas colored folium
     - name: run
-      run: py main.py
+      run: py main.py test
 
