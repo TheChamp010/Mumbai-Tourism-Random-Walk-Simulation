@@ -23,7 +23,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pandas colorama
+        pip install pandas colored
     - name: run
       run: py main.py
 
