@@ -23,7 +23,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pandas colored
+        pip install wheel pandas colored folium
     - name: run
       run: py main.py
 
