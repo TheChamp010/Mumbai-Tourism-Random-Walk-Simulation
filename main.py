@@ -7,6 +7,7 @@ from pandas import DataFrame as df
 from traveller import Traveller, distance
 from data import hotels, places
 from mapplot import map_path
+from random import randint
 
 nhotels = len(hotels)
 nplaces = len(places)
@@ -17,28 +18,18 @@ places_prob_table = [[100/(nplaces-1)if i != j else 0 for j in range(nplaces)]
 hotels_prob_table = [[100/(nplaces) for j in range(nplaces)]
                      for i in range(nhotels)]
 
-
-def progress(count, total):
-    bar_len = 50
-    filled_len = int(round(bar_len * count / float(total)))
-    percents = round(100.0 * count / float(total), 1)
-    bar = stylize('█', fg('#99ff00')) * filled_len + \
-        '═' * (bar_len - filled_len)
-    sys.stdout.write('|%s| %s%s...\r' % (bar, percents, '%'))
-    sys.stdout.flush()
-
-
 arg = ap.ArgumentParser()
 arg.add_argument('id')
 mid = arg.parse_args().id
-tl = 16  # int(input('total travel time: '))
+tl = randint(12, 16)  # int(input('total travel time: '))
 hl = 2.5
 inc = .1
-trials = 25000  # int(input('number of trials: '))
+trials = 1000  # int(input('number of trials: '))
 
 start = None
 path = []
 tpath = []
+time = []
 
 for i in range(trials):
     Trv = Traveller()
@@ -66,34 +57,24 @@ for i in range(trials):
 
     path = Trv.get_path()
     start = Trv.get_start()
+    time = Trv.get_time()
     tpath = list(zip(
         Trv.get_path(),
         map(lambda x: round(x, 2), Trv.get_time())
     ))
 
-    open('paths_log', 'a+').write(str(tpath)+'\n')
-
     if i == trials-1:
-        print('\n')
         print(stylize(hotels[Trv.get_start()]['name'],
                       attr(1)+fg('#ff9933')+bg('black')))
         print(stylize(df(zip(
             map(lambda x: places[x]['name'], Trv.get_path()),
             map(lambda x: round(x, 2), Trv.get_time()),
             map(lambda x: round(x, 2), Trv.get_travel())
-        ), index=range(1, len(tpath)+1), columns=['Location', 'Time Spent', 'Travel Time']),
+        ), index=range(1, len(tpath)+1),
+            columns=['Location', 'Time Spent', 'Travel Time']),
             attr(21)+bg('black')))
         print(stylize(f'{round(ttt,2)} hrs of Travel Time',
                       fg('#dd7a09')+attr(21)+bg('black')))
 
-    progress(i, trials)
-
 print('─'*100)
-map_path(path, start, f'map/map_{mid}.html')
-
-# pdu: pd.DataFrame = places_data.drop(path)
-# pdu.to_csv('places_data.csv')
-
-open('paths', 'a+').write(str(tpath)+'\n')
-open('prob_table.csv', 'w+').write(str('\n'.join(map(lambda x: ','.join(map(str, x)),
-                                                     [list(range(nplaces))]+hotels_prob_table+places_prob_table))))
+map_path(start, path, time, f'map/map_{mid}.html')
